@@ -30,6 +30,54 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          items: Json
+          last_name: string
+          phone: string
+          shipping_status: string
+          state: string
+          total_amount: number
+          zip_code: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          items: Json
+          last_name: string
+          phone: string
+          shipping_status?: string
+          state: string
+          total_amount: number
+          zip_code: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          items?: Json
+          last_name?: string
+          phone?: string
+          shipping_status?: string
+          state?: string
+          total_amount?: number
+          zip_code?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand: string | null

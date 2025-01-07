@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface CartItem {
   id: string;
@@ -16,6 +17,7 @@ interface CartItem {
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -114,7 +116,9 @@ const Cart = () => {
         </div>
         <div className="mt-8 text-right">
           <p className="text-2xl font-bold">Total: ${total.toFixed(2)}</p>
-          <Button className="mt-4">Checkout</Button>
+          <Button className="mt-4" onClick={() => navigate("/checkout")}>
+            Proceed to Checkout
+          </Button>
         </div>
       </div>
     </div>
