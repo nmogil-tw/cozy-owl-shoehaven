@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckoutFormData, CartItem } from "@/types/checkout";
-import { AnalyticsBrowser } from '@segment/analytics-next';
+import { AnalyticsBrowser, Analytics } from '@segment/analytics-next';
 
 const getSegmentKey = async () => {
   const { data, error } = await supabase.functions.invoke('get-secret', {
@@ -15,7 +15,8 @@ const getSegmentKey = async () => {
 
 const initializeAnalytics = async () => {
   const writeKey = await getSegmentKey();
-  return AnalyticsBrowser.load({ writeKey });
+  const [analytics] = await AnalyticsBrowser.load({ writeKey });
+  return analytics;
 };
 
 let analyticsPromise = initializeAnalytics();
@@ -54,7 +55,6 @@ export const useCheckout = () => {
 
       await analytics.identify({
         userId: formData.email,
-        type: 'identify',
         traits: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -69,7 +69,6 @@ export const useCheckout = () => {
 
       await analytics.track({
         userId: formData.email,
-        type: 'track',
         event: 'Order Completed',
         properties: {
           orderId: orderData.id,
