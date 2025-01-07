@@ -16,7 +16,7 @@ serve(async (req) => {
     
     console.log('Received order data:', { formData, orderData, cartItems, totalAmount })
 
-    const response = await fetch('https://webhook.site/a5d2937c-8337-41ad-b327-2bea9b33fee5', {
+    const response = await fetch('https://noah-demos-2840.twil.io/send-to-segment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
