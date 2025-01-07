@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckoutFormData, CartItem } from "@/types/checkout";
-import { identifyUser, trackOrderCompleted } from "@/services/analytics";
 
 export const useCheckout = () => {
   const navigate = useNavigate();
@@ -43,9 +42,6 @@ export const useCheckout = () => {
       const totalAmount = calculateTotalAmount(cartItems);
       
       const orderData = await createOrder(formData, cartItems, totalAmount);
-      
-      await identifyUser(formData);
-      await trackOrderCompleted(formData, orderData.id, totalAmount, cartItems);
 
       localStorage.removeItem("cart");
       toast({
