@@ -1,31 +1,29 @@
-import { AnalyticsBrowser } from '@segment/analytics-next';
-
-// Initialize analytics with the write key from environment variables
-const writeKey = import.meta.env.VITE_SEGMENT_WRITE_KEY;
-if (!writeKey) {
-  console.error('Segment write key is not configured. Please check your .env file.');
+// Type definition for the global analytics object
+declare global {
+  interface Window {
+    analytics: any;
+  }
 }
 
-console.log('Initializing Segment analytics with write key:', writeKey);
+console.log('Initializing analytics service');
 
-// Initialize the analytics object as early as possible
-export const analytics = AnalyticsBrowser.load({ 
-  writeKey: writeKey || '', // Provide empty string as fallback to prevent undefined errors
-}).catch(error => {
-  console.error('Failed to load analytics:', error);
-  // Return a mock analytics object to prevent app crashes
-  return [{
-    identify: () => Promise.resolve(),
-    track: () => Promise.resolve(),
-    page: () => Promise.resolve(),
-  }];
-});
+const isAnalyticsBlocked = () => {
+  try {
+    return window.analytics === undefined;
+  } catch {
+    return true;
+  }
+};
 
 export const identifyUser = async (formData: any) => {
+  if (isAnalyticsBlocked()) {
+    console.log('Analytics blocked by browser: skipping identify user');
+    return;
+  }
+
   try {
     console.log('Identifying user:', formData.email);
-    const [analyticsInstance] = await analytics;
-    await analyticsInstance.identify(formData.email, {
+    window.analytics.identify(formData.email, {
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
@@ -36,9 +34,7 @@ export const identifyUser = async (formData: any) => {
       zipCode: formData.zipCode,
     });
   } catch (error) {
-    console.error('Error identifying user:', error);
-    // We throw the error to handle it in the UI
-    throw error;
+    console.log('Analytics error (possibly blocked):', error);
   }
 };
 
@@ -48,10 +44,14 @@ export const trackOrderCompleted = async (
   totalAmount: number,
   cartItems: any[]
 ) => {
+  if (isAnalyticsBlocked()) {
+    console.log('Analytics blocked by browser: skipping order tracking');
+    return;
+  }
+
   try {
     console.log('Tracking order completed:', orderId);
-    const [analyticsInstance] = await analytics;
-    await analyticsInstance.track('Order Completed', {
+    window.analytics.track('Order Completed', {
       orderId,
       revenue: totalAmount,
       products: cartItems.map(item => ({
@@ -62,21 +62,20 @@ export const trackOrderCompleted = async (
       }))
     });
   } catch (error) {
-    console.error('Error tracking order:', error);
-    // We throw the error to handle it in the UI
-    throw error;
+    console.log('Analytics error (possibly blocked):', error);
   }
 };
 
-// Track page views
 export const trackPageView = async (pageName: string, properties: Record<string, any> = {}) => {
+  if (isAnalyticsBlocked()) {
+    console.log('Analytics blocked by browser: skipping page view tracking');
+    return;
+  }
+
   try {
     console.log('Tracking page view:', pageName);
-    const [analyticsInstance] = await analytics;
-    await analyticsInstance.page(pageName, properties);
+    window.analytics.page(pageName, properties);
   } catch (error) {
-    console.error('Error tracking page view:', error);
-    // We throw the error to handle it in the UI
-    throw error;
+    console.log('Analytics error (possibly blocked):', error);
   }
 };
