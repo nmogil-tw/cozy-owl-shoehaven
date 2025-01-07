@@ -8,8 +8,10 @@ import { Navigation } from "@/components/Navigation";
 import { faker } from "@faker-js/faker";
 import { AnalyticsBrowser } from '@segment/analytics-next';
 
-// Initialize Segment
-const analytics = AnalyticsBrowser.load({ writeKey: 'YOUR_WRITE_KEY' });
+// Initialize Segment with a write key from environment or configuration
+const analytics = AnalyticsBrowser.load({ 
+  writeKey: import.meta.env.VITE_SEGMENT_WRITE_KEY || 'PLACEHOLDER_KEY'
+});
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -68,7 +70,8 @@ const Checkout = () => {
 
       // Send Segment identify event
       await analytics.identify({
-        userId: formData.email, // Using email as userId since we don't have user authentication
+        userId: formData.email,
+        type: 'identify',
         traits: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -81,9 +84,10 @@ const Checkout = () => {
         }
       });
 
-      // Send Segment track event
+      // Send Segment track event with proper typing
       await analytics.track({
         userId: formData.email,
+        type: 'track',
         event: 'Order Completed',
         properties: {
           orderId: orderData.id,
