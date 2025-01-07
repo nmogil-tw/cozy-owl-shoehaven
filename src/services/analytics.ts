@@ -3,7 +3,7 @@ import { CheckoutFormData, CartItem } from "@/types/checkout";
 
 // Initialize analytics with the write key
 const analytics = AnalyticsBrowser.load({ 
-  writeKey: 'YOUR_SEGMENT_WRITE_KEY' // Replace this with your actual Segment write key
+  writeKey: import.meta.env.VITE_SEGMENT_WRITE_KEY // Use environment variable
 });
 
 export const identifyUser = async (formData: CheckoutFormData) => {
@@ -12,17 +12,14 @@ export const identifyUser = async (formData: CheckoutFormData) => {
     lastName: formData.lastName,
     email: formData.email,
     phone: formData.phone,
-    address: {
-      street: formData.address,
-      city: formData.city,
-      state: formData.state,
-      postalCode: formData.zipCode
-    }
+    address: formData.address,
+    city: formData.city,
+    state: formData.state,
+    zipCode: formData.zipCode,
   });
 };
 
 export const trackOrderCompleted = async (
-  formData: CheckoutFormData,
   orderId: string,
   totalAmount: number,
   cartItems: CartItem[]
@@ -30,12 +27,11 @@ export const trackOrderCompleted = async (
   await analytics.track('Order Completed', {
     orderId,
     revenue: totalAmount,
-    items: cartItems,
-    shipping: {
-      street: formData.address,
-      city: formData.city,
-      state: formData.state,
-      postalCode: formData.zipCode
-    }
-  }, { userId: formData.email });
+    products: cartItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity
+    }))
+  });
 };
