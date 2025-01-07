@@ -5,9 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { CheckoutFormData, CartItem } from "@/types/checkout";
 import { AnalyticsBrowser } from '@segment/analytics-next';
 
-const analytics = AnalyticsBrowser.load({ 
-  writeKey: import.meta.env.VITE_SEGMENT_WRITE_KEY || 'PLACEHOLDER_KEY'
-});
+const getSegmentKey = async () => {
+  const { data, error } = await supabase.functions.invoke('get-secret', {
+    body: { name: 'SEGMENT_WRITE_KEY' }
+  });
+  if (error) throw error;
+  return data.secret;
+};
+
+const initializeAnalytics = async () => {
+  const writeKey = await getSegmentKey();
+  return AnalyticsBrowser.load({ writeKey });
+};
+
+let analyticsPromise = initializeAnalytics();
 
 export const useCheckout = () => {
   const navigate = useNavigate();
@@ -38,6 +49,8 @@ export const useCheckout = () => {
       }).select().single();
 
       if (error) throw error;
+
+      const analytics = await analyticsPromise;
 
       await analytics.identify({
         userId: formData.email,
