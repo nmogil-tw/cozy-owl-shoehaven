@@ -7,11 +7,81 @@
     <meta name="description" content="Lovable Generated Project" />
     <meta name="author" content="Lovable" />
     <meta property="og:image" content="/og-image.png" />
+    <script>
+      !function(){var i="analytics",analytics=window[i]=window[i]||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","screen","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware","register"];analytics.factory=function(e){return function(){if(window[i].initialized)return window[i][e].apply(window[i],arguments);var n=Array.prototype.slice.call(arguments);if(["track","screen","alias","group","page","identify"].indexOf(e)>-1){var c=document.querySelector("link[rel='canonical']");n.push({__t:"bpc",c:c&&c.getAttribute("href")||void 0,p:location.pathname,u:location.href,s:location.search,t:document.title,r:document.referrer})}n.unshift(e);analytics.push(n);return analytics}};for(var n=0;n<analytics.methods.length;n++){var key=analytics.methods[n];analytics[key]=analytics.factory(key)}analytics.load=function(key,n){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.setAttribute("data-global-segment-analytics-key",i);t.src="https://cdn.segment.com/analytics.js/v1/"+key+"/analytics.min.js";var r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(t,r);analytics._loadOptions=n};analytics._writeKey="nQZVh53SoIsRxEay6LP03svcWvFE38UK";;analytics.SNIPPET_VERSION="5.2.0";
+      analytics.load("nQZVh53SoIsRxEay6LP03svcWvFE38UK");
+      analytics.page();
+      }}();
+    </script>
   </head>
-
   <body>
     <div id="root"></div>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
+Now, let's update our analytics service to use the global analytics object:
+
+<lov-write file_path="src/services/analytics.ts">
+// Type definition for the global analytics object
+declare global {
+  interface Window {
+    analytics: any;
+  }
+}
+
+console.log('Initializing analytics service');
+
+export const identifyUser = async (formData: any) => {
+  try {
+    console.log('Identifying user:', formData.email);
+    window.analytics.identify(formData.email, {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode,
+    });
+  } catch (error) {
+    console.error('Error identifying user:', error);
+    throw error;
+  }
+};
+
+export const trackOrderCompleted = async (
+  formData: any,
+  orderId: string,
+  totalAmount: number,
+  cartItems: any[]
+) => {
+  try {
+    console.log('Tracking order completed:', orderId);
+    window.analytics.track('Order Completed', {
+      orderId,
+      revenue: totalAmount,
+      products: cartItems.map(item => ({
+        product_id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      }))
+    });
+  } catch (error) {
+    console.error('Error tracking order:', error);
+    throw error;
+  }
+};
+
+export const trackPageView = async (pageName: string, properties: Record<string, any> = {}) => {
+  try {
+    console.log('Tracking page view:', pageName);
+    window.analytics.page(pageName, properties);
+  } catch (error) {
+    console.error('Error tracking page view:', error);
+    throw error;
+  }
+};
