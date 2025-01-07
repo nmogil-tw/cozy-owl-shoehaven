@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </BrowserRouter>
         <Toaster />
