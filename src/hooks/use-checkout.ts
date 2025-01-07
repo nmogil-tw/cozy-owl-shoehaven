@@ -53,35 +53,28 @@ export const useCheckout = () => {
 
       const analytics = await analyticsPromise;
 
-      await analytics.identify({
-        userId: formData.email,
-        traits: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
+      await analytics.identify(formData.email, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+      });
+
+      await analytics.track('Order Completed', {
+        orderId: orderData.id,
+        revenue: totalAmount,
+        items: cartItems,
+        shipping: {
           address: formData.address,
           city: formData.city,
           state: formData.state,
           zipCode: formData.zipCode,
         }
-      });
-
-      await analytics.track({
-        userId: formData.email,
-        event: 'Order Completed',
-        properties: {
-          orderId: orderData.id,
-          revenue: totalAmount,
-          items: cartItems,
-          shipping: {
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            zipCode: formData.zipCode,
-          }
-        }
-      });
+      }, { userId: formData.email });
 
       localStorage.removeItem("cart");
       toast({
