@@ -6,6 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { faker } from "@faker-js/faker";
+import { AnalyticsBrowser } from '@segment/analytics-next';
+
+// Initialize Segment
+const analytics = AnalyticsBrowser.load({ writeKey: 'YOUR_WRITE_KEY' });
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -46,7 +50,8 @@ const Checkout = () => {
         0
       );
 
-      const { error } = await supabase.from("orders").insert({
+      // Create the order in Supabase
+      const { data: orderData, error } = await supabase.from("orders").insert({
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
@@ -57,9 +62,41 @@ const Checkout = () => {
         zip_code: formData.zipCode,
         items: cartItems,
         total_amount: totalAmount,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Send Segment identify event
+      await analytics.identify({
+        userId: formData.email, // Using email as userId since we don't have user authentication
+        traits: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+        }
+      });
+
+      // Send Segment track event
+      await analytics.track({
+        userId: formData.email,
+        event: 'Order Completed',
+        properties: {
+          orderId: orderData.id,
+          revenue: totalAmount,
+          items: cartItems,
+          shipping: {
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+          }
+        }
+      });
 
       localStorage.removeItem("cart");
       toast({
