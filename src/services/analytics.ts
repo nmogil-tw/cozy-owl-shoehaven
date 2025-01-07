@@ -14,17 +14,17 @@ export const analytics = AnalyticsBrowser.load({
 }).catch(error => {
   console.error('Failed to load analytics:', error);
   // Return a mock analytics object to prevent app crashes
-  return {
+  return [{
     identify: () => Promise.resolve(),
     track: () => Promise.resolve(),
     page: () => Promise.resolve(),
-  };
+  }];
 });
 
 export const identifyUser = async (formData: any) => {
   try {
     console.log('Identifying user:', formData.email);
-    const analyticsInstance = await analytics;
+    const [analyticsInstance] = await analytics;
     await analyticsInstance.identify(formData.email, {
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -50,7 +50,7 @@ export const trackOrderCompleted = async (
 ) => {
   try {
     console.log('Tracking order completed:', orderId);
-    const analyticsInstance = await analytics;
+    const [analyticsInstance] = await analytics;
     await analyticsInstance.track('Order Completed', {
       orderId,
       revenue: totalAmount,
@@ -72,7 +72,7 @@ export const trackOrderCompleted = async (
 export const trackPageView = async (pageName: string, properties: Record<string, any> = {}) => {
   try {
     console.log('Tracking page view:', pageName);
-    const analyticsInstance = await analytics;
+    const [analyticsInstance] = await analytics;
     await analyticsInstance.page(pageName, properties);
   } catch (error) {
     console.error('Error tracking page view:', error);
