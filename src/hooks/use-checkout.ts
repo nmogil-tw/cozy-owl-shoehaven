@@ -58,10 +58,12 @@ export const useCheckout = () => {
         lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipCode: formData.zipCode,
+        address: {
+          street: formData.address,
+          city: formData.city,
+          state: formData.state,
+          postalCode: formData.zipCode
+        }
       });
 
       await analytics.track('Order Completed', {
@@ -69,10 +71,10 @@ export const useCheckout = () => {
         revenue: totalAmount,
         items: cartItems,
         shipping: {
-          address: formData.address,
+          street: formData.address,
           city: formData.city,
           state: formData.state,
-          zipCode: formData.zipCode,
+          postalCode: formData.zipCode
         }
       }, { userId: formData.email });
 
