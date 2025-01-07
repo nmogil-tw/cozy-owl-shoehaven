@@ -34,6 +34,22 @@ export const useCheckout = () => {
     return orderData;
   };
 
+  const sendToSegment = async (formData: CheckoutFormData, orderData: any, cartItems: CartItem[], totalAmount: number) => {
+    const { error } = await supabase.functions.invoke('send-to-segment', {
+      body: {
+        formData,
+        orderData,
+        cartItems,
+        totalAmount
+      }
+    });
+
+    if (error) {
+      console.error('Error sending data to Segment:', error);
+      // We don't throw here to avoid blocking the checkout process
+    }
+  };
+
   const handleSubmit = async (formData: CheckoutFormData) => {
     setLoading(true);
 
@@ -42,6 +58,9 @@ export const useCheckout = () => {
       const totalAmount = calculateTotalAmount(cartItems);
       
       const orderData = await createOrder(formData, cartItems, totalAmount);
+
+      // Send data to Segment via Edge Function
+      await sendToSegment(formData, orderData, cartItems, totalAmount);
 
       localStorage.removeItem("cart");
       toast({
