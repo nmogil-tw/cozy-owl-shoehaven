@@ -2,13 +2,14 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { Navigation } from "@/components/Navigation";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -18,12 +19,12 @@ const ProductDetails = () => {
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (error) {
         console.error("Error fetching product:", error);
         throw error;
       }
-      
+
       return data;
     },
   });
@@ -37,25 +38,28 @@ const ProductDetails = () => {
       return;
     }
 
-    // Get existing cart from localStorage or initialize empty array
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    
-    // Add new item to cart
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      size: selectedSize,
-      image_url: product.image_url,
-      quantity: 1
-    };
-    
-    existingCart.push(cartItem);
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-    
+    const cartItems = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingItemIndex = cartItems.findIndex(
+      (item: any) => item.id === product.id && item.size === selectedSize
+    );
+
+    if (existingItemIndex >= 0) {
+      cartItems[existingItemIndex].quantity += 1;
+    } else {
+      cartItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url,
+        size: selectedSize,
+        quantity: 1,
+      });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cartItems));
     toast({
       title: "Added to cart",
-      description: `${product.name} - Size ${selectedSize} added to your cart`,
+      description: `${product.name} - Size ${selectedSize}`,
     });
   };
 
@@ -68,56 +72,44 @@ const ProductDetails = () => {
   }
 
   if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Product not found</h1>
-        </div>
-      </div>
-    );
+    return <div>Product not found</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="rounded-lg overflow-hidden bg-white shadow-lg">
+          <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
             <img
-              src={product.image_url}
+              src={product.image_url || "/placeholder.svg"}
               alt={product.name}
-              className="w-full h-[500px] object-cover object-center"
+              className="h-full w-full object-cover object-center"
             />
           </div>
-          
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+          <div className="flex flex-col space-y-4">
+            <h1 className="text-3xl font-bold">{product.name}</h1>
             <p className="text-gray-600">{product.brand}</p>
-            <p className="text-4xl font-bold text-gray-900">${product.price}</p>
-            
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Description</h2>
-              <p className="text-gray-600">{product.description}</p>
-            </div>
-            
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Select Size</h2>
+            <p className="text-2xl font-bold">${product.price}</p>
+            <p className="text-gray-700">{product.description}</p>
+            <div>
+              <h3 className="font-semibold mb-2">Select Size</h3>
               <div className="grid grid-cols-4 gap-2">
-                {product.size.map((size) => (
+                {product.size.map((size: number) => (
                   <Button
                     key={size}
                     variant={selectedSize === size ? "default" : "outline"}
                     onClick={() => setSelectedSize(size)}
-                    className="w-full"
                   >
                     {size}
                   </Button>
                 ))}
               </div>
             </div>
-            
             <Button
+              className="mt-8"
+              size="lg"
               onClick={addToCart}
-              className="w-full py-6 text-lg"
             >
               Add to Cart
             </Button>
