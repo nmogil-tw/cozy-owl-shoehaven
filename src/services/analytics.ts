@@ -1,12 +1,17 @@
 import { AnalyticsBrowser } from '@segment/analytics-next';
-import { CheckoutFormData, CartItem } from "@/types/checkout";
 
-// Initialize analytics with the write key
-const analytics = AnalyticsBrowser.load({ 
-  writeKey: import.meta.env.VITE_SEGMENT_WRITE_KEY // Use environment variable
+// Initialize analytics with the write key from environment variables
+const writeKey = import.meta.env.VITE_SEGMENT_WRITE_KEY;
+if (!writeKey) {
+  console.error('Segment write key is not configured');
+}
+
+export const analytics = AnalyticsBrowser.load({ 
+  writeKey: writeKey || '' // Provide empty string as fallback to prevent undefined errors
 });
 
-export const identifyUser = async (formData: CheckoutFormData) => {
+export const identifyUser = async (formData: any) => {
+  console.log('Identifying user:', formData.email);
   await analytics.identify(formData.email, {
     firstName: formData.firstName,
     lastName: formData.lastName,
@@ -20,10 +25,12 @@ export const identifyUser = async (formData: CheckoutFormData) => {
 };
 
 export const trackOrderCompleted = async (
+  formData: any,
   orderId: string,
   totalAmount: number,
-  cartItems: CartItem[]
+  cartItems: any[]
 ) => {
+  console.log('Tracking order completed:', orderId);
   await analytics.track('Order Completed', {
     orderId,
     revenue: totalAmount,
