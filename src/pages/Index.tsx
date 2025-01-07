@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
@@ -38,7 +40,11 @@ const Index = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products?.map((product) => (
-            <Card key={product.id} className="hover:shadow-lg transition-shadow duration-300">
+            <Card 
+              key={product.id} 
+              className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
               <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-t-lg bg-gray-200">
                 <img
                   src={product.image_url || "/placeholder.svg"}
