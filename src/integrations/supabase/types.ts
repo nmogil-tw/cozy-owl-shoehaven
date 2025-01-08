@@ -30,7 +30,7 @@ export type Database = {
         }
         Relationships: []
       }
-      orders: {
+      customers: {
         Row: {
           address: string
           city: string
@@ -38,12 +38,9 @@ export type Database = {
           email: string
           first_name: string
           id: string
-          items: Json
           last_name: string
           phone: string
-          shipping_status: string
           state: string
-          total_amount: number
           zip_code: string
         }
         Insert: {
@@ -53,12 +50,9 @@ export type Database = {
           email: string
           first_name: string
           id?: string
-          items: Json
           last_name: string
           phone: string
-          shipping_status?: string
           state: string
-          total_amount: number
           zip_code: string
         }
         Update: {
@@ -68,15 +62,47 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
-          items?: Json
           last_name?: string
           phone?: string
-          shipping_status?: string
           state?: string
-          total_amount?: number
           zip_code?: string
         }
         Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          items: Json
+          shipping_status: string
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          items: Json
+          shipping_status?: string
+          total_amount: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          items?: Json
+          shipping_status?: string
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
