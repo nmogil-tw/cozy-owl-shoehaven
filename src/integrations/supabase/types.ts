@@ -72,31 +72,37 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
-          customer_email: string
           customer_id: string
-          customer_phone: string
+          email: string
           id: string
           items: Json
+          phone: string
+          return_id: string | null
+          return_status: string | null
           shipping_status: string
           total_amount: number
         }
         Insert: {
           created_at?: string
-          customer_email: string
           customer_id: string
-          customer_phone: string
+          email: string
           id?: string
           items: Json
+          phone: string
+          return_id?: string | null
+          return_status?: string | null
           shipping_status?: string
           total_amount: number
         }
         Update: {
           created_at?: string
-          customer_email?: string
           customer_id?: string
-          customer_phone?: string
+          email?: string
           id?: string
           items?: Json
+          phone?: string
+          return_id?: string | null
+          return_status?: string | null
           shipping_status?: string
           total_amount?: number
         }
@@ -106,6 +112,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_return_id_fkey"
+            columns: ["return_id"]
+            isOneToOne: false
+            referencedRelation: "returns"
             referencedColumns: ["id"]
           },
         ]
