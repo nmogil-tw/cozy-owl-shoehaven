@@ -1,3 +1,5 @@
 project_id = "udkrelrxlvpysiszrezw"
 [functions.send-to-segment]
 verify_jwt = false
+[functions.twilio-token]
+verify_jwt = false
