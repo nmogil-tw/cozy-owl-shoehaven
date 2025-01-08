@@ -17,14 +17,17 @@ export const useCheckout = () => {
   };
 
   const findOrCreateCustomer = async (formData: CheckoutFormData): Promise<Customer> => {
+    console.log("Searching for existing customer with email:", formData.email);
+    
     // First, try to find existing customer by email
     const { data: existingCustomer, error: findError } = await supabase
       .from("customers")
       .select()
       .eq("email", formData.email)
-      .single();
+      .maybeSingle();
 
-    if (findError && findError.code !== "PGRST116") { // PGRST116 is "no rows returned"
+    if (findError) {
+      console.error("Error finding customer:", findError);
       throw findError;
     }
 
@@ -33,6 +36,7 @@ export const useCheckout = () => {
       return existingCustomer as Customer;
     }
 
+    console.log("No existing customer found, creating new one");
     // If no existing customer, create new one
     const { data: newCustomer, error: createError } = await supabase
       .from("customers")
@@ -49,7 +53,11 @@ export const useCheckout = () => {
       .select()
       .single();
 
-    if (createError) throw createError;
+    if (createError) {
+      console.error("Error creating customer:", createError);
+      throw createError;
+    }
+    
     console.log("Created new customer:", newCustomer);
     return newCustomer as Customer;
   };
