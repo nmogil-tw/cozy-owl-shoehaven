@@ -15,34 +15,12 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      window.addEventListener("load", async () => {
-        try {
-          const response = await fetch('https://udkrelrxlvpysiszrezw.supabase.co/functions/v1/twilio-token', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-          
-          const data = await response.json();
-          
-          if (data.error) {
-            console.error('Error initializing Twilio chat:', data.error);
-            return;
-          }
-
-          const appConfig = {
-            accountSid: data.accountSid,
-            flexFlowSid: data.flexFlowSid,
-            context: data.context,
-            deploymentKey: "CV27a8670335f1edc5e1e0a05a61abb6d2"
-          };
-
-          Twilio.initWebchat(appConfig);
-        } catch (error) {
-          console.error('Error initializing chat:', error);
+      window.addEventListener("load", () => {
+        const appConfig = {
+          deploymentKey: "CV27a8670335f1edc5e1e0a05a61abb6d2"
         }
-      });
+        Twilio.initWebchat(appConfig); 
+      })
     </script>
   </body>
 </html>
