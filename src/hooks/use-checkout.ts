@@ -68,8 +68,8 @@ export const useCheckout = () => {
       .from("orders")
       .insert({
         customer_id: customer.id,
-        customer_email: customer.email, // Add customer email
-        customer_phone: customer.phone, // Add customer phone
+        email: customer.email, // Changed from customer_email to email
+        phone: customer.phone, // Changed from customer_phone to phone
         items: cartItems,
         total_amount: totalAmount,
       })
