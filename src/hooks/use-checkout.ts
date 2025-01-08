@@ -63,17 +63,23 @@ export const useCheckout = () => {
   };
 
   const createOrder = async (customer: Customer, cartItems: CartItem[], totalAmount: number) => {
+    console.log("Creating order with customer:", customer);
     const { data: orderData, error } = await supabase
       .from("orders")
       .insert({
         customer_id: customer.id,
+        customer_email: customer.email, // Add customer email
+        customer_phone: customer.phone, // Add customer phone
         items: cartItems,
         total_amount: totalAmount,
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error creating order:", error);
+      throw error;
+    }
     console.log("Created new order:", orderData);
     return orderData;
   };

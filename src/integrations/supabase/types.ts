@@ -72,7 +72,9 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          customer_email: string
           customer_id: string
+          customer_phone: string
           id: string
           items: Json
           shipping_status: string
@@ -80,7 +82,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          customer_email: string
           customer_id: string
+          customer_phone: string
           id?: string
           items: Json
           shipping_status?: string
@@ -88,7 +92,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          customer_email?: string
           customer_id?: string
+          customer_phone?: string
           id?: string
           items?: Json
           shipping_status?: string
