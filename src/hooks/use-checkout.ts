@@ -78,6 +78,20 @@ export const useCheckout = () => {
     return orderData;
   };
 
+  const checkShippingStatus = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-shipping-status', {
+        body: { orderId }
+      });
+
+      if (error) throw error;
+      return data.status;
+    } catch (error) {
+      console.error('Error checking shipping status:', error);
+      throw error;
+    }
+  };
+
   const sendToSegment = async (formData: CheckoutFormData, orderData: any, cartItems: CartItem[], totalAmount: number) => {
     const { error } = await supabase.functions.invoke('send-to-segment', {
       body: {
@@ -111,10 +125,31 @@ export const useCheckout = () => {
       // Send data to Segment via Edge Function
       await sendToSegment(formData, orderData, cartItems, totalAmount);
 
+      // Set up shipping status check
+      const checkStatus = async () => {
+        try {
+          const status = await checkShippingStatus(orderData.id);
+          toast({
+            title: "Order Status Updated",
+            description: `Your order is now ${status}`,
+          });
+        } catch (error) {
+          console.error('Error checking shipping status:', error);
+        }
+      };
+
+      // Check status every 20 minutes
+      const statusInterval = setInterval(checkStatus, 20 * 60 * 1000);
+      
+      // Clear interval after 1 hour (when order should be delivered)
+      setTimeout(() => {
+        clearInterval(statusInterval);
+      }, 60 * 60 * 1000);
+
       localStorage.removeItem("cart");
       toast({
         title: "Order placed successfully!",
-        description: "Thank you for your purchase.",
+        description: "Thank you for your purchase. We'll keep you updated on the shipping status.",
       });
       navigate("/");
     } catch (error) {
@@ -132,5 +167,6 @@ export const useCheckout = () => {
   return {
     loading,
     handleSubmit,
+    checkShippingStatus,
   };
 };
