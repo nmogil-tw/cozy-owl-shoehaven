@@ -35,12 +35,16 @@ export const CheckoutForm = ({ onSubmit, loading }: CheckoutFormProps) => {
   };
 
   const generateRandomData = () => {
-    const randomPhone = faker.phone.number("##########"); // Generate 10 digits
+    // Generate a random 10-digit number
+    const randomDigits = Array.from({ length: 10 }, () => 
+      Math.floor(Math.random() * 10)
+    ).join('');
+    
     setFormData({
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       email: faker.internet.email().toLowerCase(),
-      phone: formatPhoneToE164(randomPhone),
+      phone: formatPhoneToE164(randomDigits),
       address: faker.location.streetAddress(),
       city: faker.location.city(),
       state: faker.location.state(),
