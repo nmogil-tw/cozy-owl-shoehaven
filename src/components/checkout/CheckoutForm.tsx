@@ -21,12 +21,26 @@ export const CheckoutForm = ({ onSubmit, loading }: CheckoutFormProps) => {
     zipCode: "",
   });
 
+  const formatPhoneToE164 = (phone: string): string => {
+    // Remove all non-digit characters
+    const digits = phone.replace(/\D/g, "");
+    
+    // Ensure the number starts with a "+" and has exactly 11 digits (including country code)
+    if (digits.length === 10) {
+      return `+1${digits}`; // Add US country code if not present
+    } else if (digits.length === 11 && digits.startsWith("1")) {
+      return `+${digits}`;
+    }
+    return phone; // Return original if format doesn't match expectations
+  };
+
   const generateRandomData = () => {
+    const randomPhone = faker.phone.number("##########"); // Generate 10 digits
     setFormData({
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      email: faker.internet.email(),
-      phone: faker.phone.number(),
+      email: faker.internet.email().toLowerCase(),
+      phone: formatPhoneToE164(randomPhone),
       address: faker.location.streetAddress(),
       city: faker.location.city(),
       state: faker.location.state(),
@@ -37,6 +51,15 @@ export const CheckoutForm = ({ onSubmit, loading }: CheckoutFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneToE164(e.target.value);
+    setFormData({ ...formData, phone: formattedPhone });
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, email: e.target.value.toLowerCase() });
   };
 
   return (
@@ -72,20 +95,18 @@ export const CheckoutForm = ({ onSubmit, loading }: CheckoutFormProps) => {
             <Input
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              onChange={handleEmailChange}
               required
+              placeholder="email@example.com"
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Phone</label>
             <Input
               value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
+              onChange={handlePhoneChange}
               required
+              placeholder="+12345678900"
             />
           </div>
           <div className="md:col-span-2">
