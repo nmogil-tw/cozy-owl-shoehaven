@@ -41,7 +41,7 @@ export const CheckoutForm = ({ onSubmit, loading }: CheckoutFormProps) => {
     ).join('');
     
     const firstName = faker.person.firstName();
-    const lastName = faker. Create email with twilio.com domain
+    const lastName = faker.person.lastName();
     const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@twilio.com`;
     
     setFormData({
