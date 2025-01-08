@@ -40,10 +40,14 @@ export const CheckoutForm = ({ onSubmit, loading }: CheckoutFormProps) => {
       Math.floor(Math.random() * 10)
     ).join('');
     
+    const firstName = faker.person.firstName();
+    const lastName = faker. Create email with twilio.com domain
+    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@twilio.com`;
+    
     setFormData({
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
-      email: faker.internet.email().toLowerCase(),
+      firstName,
+      lastName,
+      email,
       phone: formatPhoneToE164(randomDigits),
       address: faker.location.streetAddress(),
       city: faker.location.city(),
