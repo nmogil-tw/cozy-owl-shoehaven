@@ -23,6 +23,11 @@ const Contact = () => {
               </div>
               
               <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Phone</h2>
+                <p className="text-gray-600">+1 (888) 794-1151</p>
+              </div>
+              
+              <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Email</h2>
                 <p className="text-gray-600">support@owlshoes.com</p>
               </div>
