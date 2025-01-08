@@ -16,15 +16,16 @@ export interface CartItem {
   [key: string]: any;
 }
 
+// Updated to match database column names
 export interface Customer {
   id: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   address: string;
   city: string;
   state: string;
-  zipCode: string;
+  zip_code: string;
   created_at?: string;
 }
