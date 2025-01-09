@@ -14,15 +14,24 @@ const Chat = () => {
         const { Manager } = await import('@twilio/flex-webchat-ui');
         const manager = await Manager.create({
           flexFlowSid: process.env.TWILIO_FLEX_FLOW_SID,
-          chatFriendlyName: 'Customer', // Fixed property name
+          chatFriendlyName: 'Customer',
           context: {
             customerName: 'Customer'
           }
         });
 
+        // Configure and create the WebChat
+        const configuration = {
+          accountSid: process.env.TWILIO_ACCOUNT_SID,
+          flexFlowSid: process.env.TWILIO_FLEX_FLOW_SID,
+          context: {
+            customerName: 'Customer'
+          }
+        };
+
         // Add the Flex WebChat to the page
         const { createWebChat } = await import('@twilio/flex-webchat-ui');
-        await createWebChat(manager);
+        await createWebChat(configuration);
         
         const container = document.getElementById('flex-webchat-container');
         if (container) {
