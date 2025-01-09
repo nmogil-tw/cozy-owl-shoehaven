@@ -1,4 +1,4 @@
-import { ShoppingCart, Menu } from "lucide-react";
+import { ShoppingCart, Menu, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -40,6 +40,14 @@ export function Navigation() {
                 Contact
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
+                onClick={() => navigate("/chat")}
+              >
+                Chat
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
         <Button
@@ -63,6 +71,14 @@ export function Navigation() {
                 {cartItems.length}
               </span>
             )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative md:hidden"
+            onClick={() => navigate("/chat")}
+          >
+            <MessageCircle className="h-6 w-6" />
           </Button>
         </div>
       </div>
