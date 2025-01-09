@@ -9,7 +9,6 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Contact from "./pages/Contact";
 import Return from "./pages/Return";
-import Chat from "./pages/Chat";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +24,6 @@ const App = () => {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/return" element={<Return />} />
-            <Route path="/chat" element={<Chat />} />
           </Routes>
         </BrowserRouter>
         <Toaster />

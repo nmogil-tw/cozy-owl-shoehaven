@@ -78,6 +78,7 @@ export type Database = {
           items: Json
           phone: string
           return_id: string | null
+          return_status: string | null
           shipping_status: string
           total_amount: number
         }
@@ -89,6 +90,7 @@ export type Database = {
           items: Json
           phone: string
           return_id?: string | null
+          return_status?: string | null
           shipping_status?: string
           total_amount: number
         }
@@ -100,6 +102,7 @@ export type Database = {
           items?: Json
           phone?: string
           return_id?: string | null
+          return_status?: string | null
           shipping_status?: string
           total_amount?: number
         }
@@ -203,38 +206,6 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      surveys: {
-        Row: {
-          created_at: string
-          customer_id: string | null
-          feedback: string | null
-          id: number
-          rating: number | null
-        }
-        Insert: {
-          created_at?: string
-          customer_id?: string | null
-          feedback?: string | null
-          id?: number
-          rating?: number | null
-        }
-        Update: {
-          created_at?: string
-          customer_id?: string | null
-          feedback?: string | null
-          id?: number
-          rating?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "surveys_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
             referencedColumns: ["id"]
           },
         ]
