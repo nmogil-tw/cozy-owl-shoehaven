@@ -180,7 +180,7 @@ export type Database = {
           order_id: string
           reason: string
           refund_amount: number
-          status?: string
+          status: string
           updated_at?: string
         }
         Update: {
