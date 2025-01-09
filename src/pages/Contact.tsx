@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Move the assistant SID to a constant since it's public and safe to expose
-const TWILIO_ASSISTANT_SID = "aia_asst_019224db-78a7-7e47-83f8-f535beee77c2";
+const TWILIO_ASSISTANT_SID = "aia_asst_01944282-f2a6-7a76-8235-b9ea699a90b1";
 
 const Contact = () => {
   const [token, setToken] = useState<string | null>(null);
