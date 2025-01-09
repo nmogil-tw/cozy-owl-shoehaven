@@ -38,8 +38,9 @@ serve(async (req) => {
       { identity: identity }
     )
 
-    // Create a Conversations Grant
-    const conversationGrant = new AccessToken.ConversationsGrant({
+    // Create a Conversations Grant using the correct syntax
+    const ChatGrant = AccessToken.ChatGrant
+    const conversationGrant = new ChatGrant({
       serviceSid: serviceSid
     })
     
