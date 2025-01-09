@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { AccessToken } from "npm:twilio@4.19.0/lib/jwt/AccessToken.js"
 
 const corsHeaders = {
@@ -14,13 +13,13 @@ serve(async (req) => {
   }
 
   try {
-    // Get environment variables
+    // Get environment variables with correct names as per Twilio docs
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
-    const apiKeySid = Deno.env.get('TWILIO_API_KEY')
-    const apiKeySecret = Deno.env.get('TWILIO_API_SECRET')
+    const apiKey = Deno.env.get('TWILIO_API_KEY_SID')  // Changed from TWILIO_API_KEY
+    const apiSecret = Deno.env.get('TWILIO_API_KEY_SECRET')  // Changed from TWILIO_API_SECRET
     const serviceSid = Deno.env.get('TWILIO_CONVERSATIONS_SERVICE_SID')
 
-    if (!accountSid || !apiKeySid || !apiKeySecret || !serviceSid) {
+    if (!accountSid || !apiKey || !apiSecret || !serviceSid) {
       console.error('Missing required environment variables')
       throw new Error('Missing required environment variables')
     }
@@ -28,19 +27,23 @@ serve(async (req) => {
     // Generate a random identity if none is provided
     const identity = `user_${Math.random().toString(36).substring(7)}`
 
-    // Create an access token
+    console.log('Creating token with:', { accountSid, apiKey, identity, serviceSid })
+
+    // Create an access token with the correct parameters
     const token = new AccessToken(
       accountSid,
-      apiKeySid,
-      apiKeySecret,
+      apiKey,
+      apiSecret,
       { identity: identity }
     )
 
-    // Create a Chat Grant and add it to the token
-    const chatGrant = new AccessToken.ChatGrant({
+    // Create a Conversations Grant (changed from ChatGrant)
+    const conversationGrant = new AccessToken.ConversationsGrant({
       serviceSid: serviceSid
     })
-    token.addGrant(chatGrant)
+    
+    // Add grant to token
+    token.addGrant(conversationGrant)
 
     // Generate JWT
     const jwt = token.toJwt()
