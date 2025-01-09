@@ -16,21 +16,37 @@ serve(async (req) => {
     const AccessToken = (await import('https://esm.sh/twilio@4.19.0/jwt/AccessToken.js')).default;
     const ChatGrant = AccessToken.ChatGrant;
 
+    // Check for required environment variables
+    const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
+    const apiKey = Deno.env.get('TWILIO_API_KEY');
+    const apiSecret = Deno.env.get('TWILIO_API_SECRET');
+    const serviceSid = Deno.env.get('TWILIO_CONVERSATIONS_SERVICE_SID');
+
+    if (!accountSid || !apiKey || !apiSecret || !serviceSid) {
+      console.error('Missing required environment variables:', {
+        accountSid: !!accountSid,
+        apiKey: !!apiKey,
+        apiSecret: !!apiSecret,
+        serviceSid: !!serviceSid
+      });
+      throw new Error('Missing required Twilio configuration');
+    }
+
     // Generate a random identity if none provided
     const identity = crypto.randomUUID();
 
     console.log('Generating token for identity:', identity);
 
     const token = new AccessToken(
-      Deno.env.get('TWILIO_ACCOUNT_SID') || '',
-      Deno.env.get('TWILIO_API_KEY') || '',
-      Deno.env.get('TWILIO_API_SECRET') || '',
+      accountSid,
+      apiKey,
+      apiSecret,
       { identity }
     );
 
     // Create a Chat Grant and add it to the token
     const conversationsGrant = new ChatGrant({
-      serviceSid: Deno.env.get('TWILIO_CONVERSATIONS_SERVICE_SID'),
+      serviceSid: serviceSid,
     });
 
     token.addGrant(conversationsGrant);
