@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
-import { AccessToken } from "https://esm.sh/twilio@4.19.0"
+import { AccessToken } from "https://esm.sh/twilio@4.19.0/jwt"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,7 +16,7 @@ serve(async (req) => {
   try {
     console.log('Starting token generation process');
     
-    const ChatGrant = AccessToken.ChatGrant;
+    const { ChatGrant } = AccessToken;
     
     console.log('Successfully imported Twilio dependencies');
 
