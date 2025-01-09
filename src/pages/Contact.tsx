@@ -1,6 +1,34 @@
 import { Navigation } from "@/components/Navigation";
+import { AssistantChat } from "@twilio-alpha/assistants-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        console.log('Fetching token from Edge Function');
+        const { data, error } = await supabase.functions.invoke('generate-twilio-token');
+        
+        if (error) {
+          console.error('Error fetching token:', error);
+          return;
+        }
+
+        if (data?.token) {
+          console.log('Token received successfully');
+          setToken(data.token);
+        }
+      } catch (error) {
+        console.error('Error initializing chat:', error);
+      }
+    };
+
+    fetchToken();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -12,10 +40,6 @@ const Contact = () => {
           </header>
 
           <div className="bg-white shadow-lg rounded-lg p-8 max-w-2xl mx-auto">
-            <p className="text-gray-600 mb-6">
-              Have questions about our products or your order? Use the chat widget in the bottom right corner to speak with our customer service team.
-            </p>
-            
             <div className="space-y-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Business Hours</h2>
@@ -36,6 +60,16 @@ const Contact = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Location</h2>
                 <p className="text-gray-600">123 Owl Street<br />San Francisco, CA 94105</p>
               </div>
+
+              {token && (
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Live Chat</h2>
+                  <AssistantChat 
+                    token={token} 
+                    assistantSid={Deno.env.get('TWILIO_ASSISTANT_SID')} 
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
