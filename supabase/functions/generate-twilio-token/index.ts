@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { AccessToken } from "npm:twilio@4.19.0/lib/jwt/AccessToken.js"
+import twilio from "npm:twilio@4.19.0"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,8 +15,8 @@ serve(async (req) => {
   try {
     // Get environment variables with correct names as per Twilio docs
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
-    const apiKey = Deno.env.get('TWILIO_API_KEY_SID')  // Changed from TWILIO_API_KEY
-    const apiSecret = Deno.env.get('TWILIO_API_KEY_SECRET')  // Changed from TWILIO_API_SECRET
+    const apiKey = Deno.env.get('TWILIO_API_KEY_SID')
+    const apiSecret = Deno.env.get('TWILIO_API_KEY_SECRET')
     const serviceSid = Deno.env.get('TWILIO_CONVERSATIONS_SERVICE_SID')
 
     if (!accountSid || !apiKey || !apiSecret || !serviceSid) {
@@ -30,6 +30,7 @@ serve(async (req) => {
     console.log('Creating token with:', { accountSid, apiKey, identity, serviceSid })
 
     // Create an access token with the correct parameters
+    const AccessToken = twilio.jwt.AccessToken
     const token = new AccessToken(
       accountSid,
       apiKey,
@@ -37,7 +38,7 @@ serve(async (req) => {
       { identity: identity }
     )
 
-    // Create a Conversations Grant (changed from ChatGrant)
+    // Create a Conversations Grant
     const conversationGrant = new AccessToken.ConversationsGrant({
       serviceSid: serviceSid
     })
