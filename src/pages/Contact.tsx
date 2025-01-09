@@ -3,6 +3,9 @@ import { AssistantChat } from "@twilio-alpha/assistants-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+// Move the assistant SID to a constant since it's public and safe to expose
+const TWILIO_ASSISTANT_SID = "aia_asst_019224db-78a7-7e47-83f8-f535beee77c2";
+
 const Contact = () => {
   const [token, setToken] = useState<string | null>(null);
 
@@ -66,7 +69,7 @@ const Contact = () => {
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Live Chat</h2>
                   <AssistantChat 
                     token={token} 
-                    assistantSid={Deno.env.get('TWILIO_ASSISTANT_SID')} 
+                    assistantSid={TWILIO_ASSISTANT_SID} 
                   />
                 </div>
               )}
