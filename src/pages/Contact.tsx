@@ -3,32 +3,40 @@ import { AssistantChat } from "@twilio-alpha/assistants-react";
 import { useEffect, useState } from "react";
 import { twilioApi } from "@/integrations/twilio";
 
-// Get Assistant SID from environment variables
 const TWILIO_ASSISTANT_SID = import.meta.env.VITE_TWILIO_ASSISTANT_SID;
 
 const Contact = () => {
   const [token, setToken] = useState<string | null>(null);
   const [conversationSid, setConversationSid] = useState<string | undefined>();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load existing conversation SID from localStorage
-    setConversationSid(localStorage.getItem("CONVERSATIONS_SID") || undefined);
+    const savedConversationSid = localStorage.getItem("CONVERSATIONS_SID");
+    if (savedConversationSid) {
+      setConversationSid(savedConversationSid);
+    }
 
     const fetchToken = async () => {
       try {
         console.log('Fetching chat token...');
-        console.log('Assistant SID:', TWILIO_ASSISTANT_SID);
         const response = await twilioApi.chat.generateToken();
+        console.log('Full response from generateToken:', response);
         
-        if (!response.success || !response.data?.token) {
-          console.error('Failed to generate token:', response.error || 'No token in response');
-          return;
+        if (!response.success) {
+          throw new Error(`API call failed: ${response.error}`);
+        }
+        
+        if (!response.data?.token) {
+          console.error('Response data:', response.data);
+          throw new Error('Token missing from response');
         }
 
-        console.log('Token received successfully');
+        console.log('Token received:', response.data.token);
         setToken(response.data.token);
       } catch (error) {
         console.error('Error initializing chat:', error);
+        setError(error instanceof Error ? error.message : 'Unknown error occurred');
       }
     };
 
@@ -36,11 +44,10 @@ const Contact = () => {
   }, []);
 
   const saveConversationSid = (sid: string) => {
+    console.log('Saving conversation SID:', sid);
     localStorage.setItem("CONVERSATIONS_SID", sid);
+    setConversationSid(sid);
   };
-
-  // Log when the component attempts to render AssistantChat
-  console.log('Rendering Contact component, token status:', token ? 'present' : 'not present');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -74,7 +81,11 @@ const Contact = () => {
                 <p className="text-gray-600">123 Owl Street<br />San Francisco, CA 94105</p>
               </div>
 
-              {token && TWILIO_ASSISTANT_SID ? (
+              {error ? (
+                <div className="text-red-600 p-4 rounded bg-red-50">
+                  Error loading chat: {error}
+                </div>
+              ) : token && TWILIO_ASSISTANT_SID ? (
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Live Chat</h2>
                   <div style={{ minHeight: '400px' }}>
@@ -83,15 +94,16 @@ const Contact = () => {
                       assistantSid={TWILIO_ASSISTANT_SID}
                       conversationSid={conversationSid}
                       onConversationSetup={saveConversationSid}
+                      onError={(error) => {
+                        console.error('AssistantChat error:', error);
+                        setError(error instanceof Error ? error.message : String(error));
+                      }}
                     />
                   </div>
                 </div>
               ) : (
-                <div>
-                  <p className="text-gray-600">
-                    {!token && 'Loading chat...'}
-                    {!TWILIO_ASSISTANT_SID && 'Assistant configuration missing.'}
-                  </p>
+                <div className="text-gray-600 p-4">
+                  Loading chat...
                 </div>
               )}
             </div>
