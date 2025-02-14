@@ -84,19 +84,19 @@ export const useCheckout = () => {
     return orderData;
   };
 
-  const checkShippingStatus = async (orderId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('check-shipping-status', {
-        body: { orderId }
-      });
+  // const checkShippingStatus = async (orderId: string) => {
+  //   try {
+  //     const { data, error } = await supabase.functions.invoke('check-shipping-status', {
+  //       body: { orderId }
+  //     });
 
-      if (error) throw error;
-      return data.status;
-    } catch (error) {
-      console.error('Error checking shipping status:', error);
-      throw error;
-    }
-  };
+  //     if (error) throw error;
+  //     return data.status;
+  //   } catch (error) {
+  //     console.error('Error checking shipping status:', error);
+  //     throw error;
+  //   }
+  // };
 
   const sendToSegment = async (formData: CheckoutFormData, orderData: any, cartItems: CartItem[], totalAmount: number) => {
     const { error } = await supabase.functions.invoke('send-to-segment', {
