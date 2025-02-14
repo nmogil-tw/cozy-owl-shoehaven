@@ -39,8 +39,10 @@ async function fetchFromFunction<T>(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return { success: true, data };
+    const responseData = await response.json();
+    
+    // Return the response data directly as it already has the correct structure
+    return responseData;
   } catch (error) {
     console.error('Error fetching from Twilio Function:', error);
     return {

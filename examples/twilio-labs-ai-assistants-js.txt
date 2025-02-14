@@ -1,0 +1,856 @@
+Directory structure:
+└── assistants-react/
+    ├── README.md
+    ├── package.json
+    ├── tsconfig.json
+    ├── src/
+    │   ├── index.ts
+    │   ├── components/
+    │   │   ├── AssistantChat.tsx
+    │   │   ├── AssistantChatDialog.tsx
+    │   │   ├── AssistantChatLogProps.tsx
+    │   │   ├── ChatMessageWrapper.tsx
+    │   │   ├── TypingIndicator.tsx
+    │   │   └── chat-composer-plugins/
+    │   │       ├── EnterKeySubmitPlugin.tsx
+    │   │       └── SendButtonPlugin.tsx
+    │   └── hooks/
+    │       └── useAssistant.ts
+    └── tests/
+        └── index.test.ts
+
+================================================
+File: packages/assistants-react/README.md
+================================================
+# Twilio AI Assistants - React SDK
+
+> [!NOTE]
+> Twilio AI Assistants is a [Twilio Alpha](https://twilioalpha.com) project that is currently in Developer Preview. If you would like to try AI Assistants, [join the waitlist](https://twilioalpha.com/ai-assistants).
+
+## Installation
+
+> [!NOTE]
+> Requires `react` & `react-dom` to be installed
+
+```bash
+npm install @twilio-alpha/assistants-react @twilio/conversations
+```
+
+## Usage
+
+### Basic usage
+
+```jsx
+import { AssistantChat } from "@twilio-alpha/assistants-react";
+
+export function App() {
+  return <AssistantChat token={"..."} assistantSid="AI..." />;
+}
+```
+
+### Using with your own UI
+
+If you want to reuse your own UI you can use the `useAssistant` hook instead.
+
+```jsx
+import { useAssistant } from "@twilio-alpha/assistants-react";
+
+export function App() {
+  const { messages, sendMessage } = useAssistant("<token>", {
+    assistantSid: "<assistantSid>",
+  });
+
+  function send(evt) {
+    evt.preventDefault();
+    sendMessage(evt.target.message.value);
+  }
+
+  return (
+    <>
+      <ul>
+        {messages.map((message) => {
+          return (
+            <li key={message.sid}>
+              {message.author}: {message.body}
+            </li>
+          );
+        })}
+      </ul>
+      <form onSubmit={send}>
+        <input type="text" name="message" />
+        <input type="submit" value="Send message" />
+      </form>
+    </>
+  );
+}
+```
+
+### Reusing existing session
+
+By default every time the `AssistantChat` component gets rendered it will create a new Twilio Conversation (aka a session). If you want to re-use the existing one between page refreshes you can use the `conversationSid` property and the `onConversationSetup` handler to persist the session. This gives you full control on how you want to manage the session. If there is no `conversationSid`, the component will automatically create one.
+
+Example code:
+
+```jsx
+import { useEffect, useState } from "react";
+
+export function App() {
+  const [conversationSid, setConversationSid] = useState();
+
+  useEffect(() => {
+    // fetches an existing conversation SID from the local storage if it exists
+    setConversationSid(localStorage.getItem("CONVERSATIONS_SID") || undefined);
+  }, []);
+
+  function saveConversationSid(sid: string) {
+    localStorage.setItem("CONVERSATIONS_SID", sid);
+  }
+
+  return (
+    <AssistantChat
+      token={"..."}
+      conversationSid={conversationSid}
+      onConversationSetup={saveConversationSid}
+      assistantSid="AI..."
+      toolHandlers={{ fillForm }}
+    />
+  );
+}
+```
+
+## License
+
+MIT
+
+
+================================================
+File: packages/assistants-react/package.json
+================================================
+{
+  "name": "@twilio-alpha/assistants-react",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "files": [
+    "README.md",
+    "dist/"
+  ],
+  "scripts": {
+    "clean": "rimraf dist/",
+    "build": "node ../../tools/build.js src/index.ts && tsc",
+    "test": "vitest",
+    "lib-pack": "npm pack"
+  },
+  "keywords": [],
+  "author": "Twilio Alpha <twilio-alpha@twilio.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^18.2.65",
+    "@types/react-dom": "^18.2.21",
+    "esbuild": "^0.20.1",
+    "esbuild-node-externals": "^1.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.2"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "@twilio-alpha/assistants": "^0.0.1",
+    "@twilio-paste/anchor": "^12.1.0",
+    "@twilio-paste/avatar": "^9.1.0",
+    "@twilio-paste/box": "^10.3.0",
+    "@twilio-paste/button": "^14.1.0",
+    "@twilio-paste/chat-composer": "^5.1.1",
+    "@twilio-paste/chat-log": "^5.2.1",
+    "@twilio-paste/flex": "^8.1.0",
+    "@twilio-paste/form": "^11.1.1",
+    "@twilio-paste/icons": "^12.3.0",
+    "@twilio-paste/input": "^9.1.2",
+    "@twilio-paste/lexical-library": "^4.1.0",
+    "@twilio-paste/minimizable-dialog": "^4.1.1",
+    "@twilio-paste/skeleton-loader": "^6.1.1",
+    "@twilio-paste/stack": "^8.1.0",
+    "@twilio-paste/status": "^2.1.1",
+    "@twilio-paste/text": "^10.1.1",
+    "@twilio-paste/theme": "^11.1.0",
+    "react-markdown": "^9.0.1",
+    "zod": "^3.22.4"
+  }
+}
+
+
+================================================
+File: packages/assistants-react/tsconfig.json
+================================================
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "declaration": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "jsx": "react",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  }
+}
+
+
+================================================
+File: packages/assistants-react/src/index.ts
+================================================
+export * from "./components/AssistantChatDialog";
+export * from "./components/AssistantChat";
+export * from "./hooks/useAssistant";
+
+
+================================================
+File: packages/assistants-react/src/components/AssistantChat.tsx
+================================================
+import React, { useEffect } from "react";
+import { AssistantChatDialog } from "./AssistantChatDialog";
+import useAssistant, { UseAssistantOptions } from "../hooks/useAssistant";
+
+export interface AssistantChatProps {
+  /**
+   * A valid JWT with a Twilio Conversations grant
+   * - {@link https://www.twilio.com/docs/iam/access-tokens#create-an-access-token-for-conversations | Learn more}
+   */
+  token: string;
+
+  /**
+   * The SID of your Twilio AI Assistant
+   */
+  assistantSid: string;
+
+  /**
+   * A conversation SID if you want to connect to an existing conversation
+   */
+  conversationSid?: string;
+
+  /**
+   * Callback for when the client has connected to a conversation.
+   * This can be used in conjunction with the `conversationSid` property if
+   * you want to save & reconnect to a conversation between page reloads
+   *
+   * @param conversationSid
+   * @returns
+   */
+  onConversationSetup?: (conversationSid: string) => void;
+
+  /**
+   * Handlers for any UI Tools you want the Twilio AI Assistant to be able to use.
+   * This requires for the UI Tools to be properly configured.
+   * - {@link https://www.twilio.com/docs/alpha/ai-assistants/code-samples/ui-tools | Learn more about UI tools}
+   */
+  toolHandlers?: UseAssistantOptions["toolHandlers"];
+}
+
+/**
+ * Renders a full popup chat for you AI Assistant, incl. both a button and
+ * the chat dialog when the button gets pressed.
+ *
+ * @example
+ * <AssistantChat token={"..."} assistantSid="AI..." />
+ *
+ * @param {AssistantChatProps} props
+ * @returns
+ */
+export function AssistantChat({
+  token,
+  assistantSid,
+  toolHandlers,
+  conversationSid,
+  onConversationSetup,
+}: AssistantChatProps) {
+  if (!token || !assistantSid) {
+    return <></>;
+  }
+
+  const assistant = useAssistant(token, {
+    assistantSid,
+    toolHandlers,
+    conversationSid,
+  });
+
+  useEffect(() => {
+    if (
+      conversationSid !== assistant.conversationSid &&
+      typeof assistant.conversationSid === "string" &&
+      typeof onConversationSetup === "function"
+    ) {
+      onConversationSetup(assistant.conversationSid);
+    }
+  }, [conversationSid, assistant.conversationSid]);
+
+  return <AssistantChatDialog {...assistant} />;
+}
+
+
+================================================
+File: packages/assistants-react/src/components/AssistantChatDialog.tsx
+================================================
+import { Theme } from "@twilio-paste/theme";
+import { ChatIcon } from "@twilio-paste/icons/esm/ChatIcon";
+import {
+  MinimizableDialog,
+  MinimizableDialogButton,
+  MinimizableDialogContainer,
+  MinimizableDialogContent,
+  MinimizableDialogHeader,
+} from "@twilio-paste/minimizable-dialog";
+import React, { useState } from "react";
+import { Flex } from "@twilio-paste/flex";
+import { StatusBadge, StatusBadgeVariants } from "@twilio-paste/status";
+import { Box } from "@twilio-paste/box";
+import { ConnectionState } from "@twilio/conversations";
+import { match } from "ts-pattern";
+
+import { ChatComposer, ChatComposerProps } from "@twilio-paste/chat-composer";
+import { $getRoot, ClearEditorPlugin } from "@twilio-paste/lexical-library";
+import { SendButtonPlugin } from "./chat-composer-plugins/SendButtonPlugin";
+import { EnterKeySubmitPlugin } from "./chat-composer-plugins/EnterKeySubmitPlugin";
+import {
+  AssistantChatLogProps,
+  AssistantChatLog,
+} from "./AssistantChatLogProps";
+
+export type AssistantChatDialogProps = {} & AssistantChatLogProps;
+
+export function AssistantChatDialog(props: AssistantChatDialogProps) {
+  const { sendMessage, state } = props;
+
+  const [messageInput, setMessageInput] = useState("");
+
+  const connectionString = match<ConnectionState, StatusBadgeVariants>(state)
+    .with("connected", () => "ConnectivityAvailable")
+    .with("disconnected", () => "ConnectivityOffline")
+    .otherwise(() => "ConnectivityBusy");
+
+  const isLoading = state === "connected" ? false : true;
+
+  const handleComposerChange: ChatComposerProps["onChange"] = (editorState) => {
+    editorState.read(() => {
+      const text = $getRoot().getTextContent();
+      setMessageInput(text);
+    });
+  };
+
+  const submitMessage = (): void => {
+    if (messageInput === "") return;
+    sendMessage(messageInput);
+  };
+
+  return (
+    <Theme.Provider theme="default">
+      <MinimizableDialogContainer>
+        <MinimizableDialogButton
+          variant="primary"
+          size="circle"
+          loading={isLoading}
+        >
+          <ChatIcon decorative={false} title="Chat" />
+        </MinimizableDialogButton>
+        <MinimizableDialog aria-label="Live chat">
+          <MinimizableDialogHeader>
+            <Flex hAlignContent={"between"}>
+              <span>Live chat</span>
+              <StatusBadge as="span" variant={connectionString}>
+                {state}
+              </StatusBadge>
+            </Flex>
+          </MinimizableDialogHeader>
+          <MinimizableDialogContent>
+            <AssistantChatLog {...props} />
+            <Box
+              borderStyle="solid"
+              borderWidth="borderWidth0"
+              borderTopWidth="borderWidth10"
+              borderColor="colorBorderWeak"
+              display="flex"
+              flexDirection="row"
+              columnGap="space30"
+              paddingX="space70"
+              paddingY="space50"
+            >
+              <ChatComposer
+                maxHeight="size10"
+                config={{
+                  namespace: "foo",
+                  onError: (error) => {
+                    throw error;
+                  },
+                }}
+                ariaLabel="Message"
+                placeholder="Type here..."
+                onChange={handleComposerChange}
+              >
+                <ClearEditorPlugin />
+                <SendButtonPlugin onClick={submitMessage} />
+                <EnterKeySubmitPlugin onKeyDown={submitMessage} />
+              </ChatComposer>
+            </Box>
+          </MinimizableDialogContent>
+        </MinimizableDialog>
+      </MinimizableDialogContainer>
+    </Theme.Provider>
+  );
+}
+
+
+================================================
+File: packages/assistants-react/src/components/AssistantChatLogProps.tsx
+================================================
+import React, { useEffect, useRef, useState } from "react";
+import { Box, BoxProps } from "@twilio-paste/box";
+import { ChatBookend, ChatBookendItem, ChatLog } from "@twilio-paste/chat-log";
+import { UseAssistantOutput } from "../hooks/useAssistant";
+import { ChatMessageWrapper } from "./ChatMessageWrapper";
+import { TypingIndicator } from "./TypingIndicator";
+
+export type AssistantChatLogProps = {
+  /**
+   * Enables additional debug output in the Chat UI such as the
+   * Conversations SID and the identity of the user
+   */
+  _debug?: boolean;
+} & UseAssistantOutput &
+  BoxProps;
+
+/**
+ * Renders a full chat log (without input) based on the output of `useAssistant`.
+ * To modify the container behavior you can use {@link https://paste.twilio.design/primitives/box | Twilio Paste's Box properties}
+ *
+ * @example <caption>Regular use</caption>
+ * const assistant = useAssistant(...)
+ * return <AssistantChatLog {...assistant} />
+ *
+ * @example <caption>Custom styling: Removing max height</caption>
+ * return <AssistantChatLog {...assistant} maxHeight="unset" />
+ *
+ * @param {AssistantChatLogProps} props
+ */
+export function AssistantChatLog({
+  _debug,
+  conversationSid,
+  identity,
+  isTyping,
+  messages,
+  ...props
+}: AssistantChatLogProps) {
+  const scrollerRef = useRef<HTMLElement>(null);
+  const loggerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || !loggerRef.current) return;
+    scrollerRef.current?.scrollTo({
+      top: loggerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, isTyping, mounted]);
+
+  return (
+    <Box
+      ref={scrollerRef}
+      overflowX="hidden"
+      overflowY="auto"
+      maxHeight="size50"
+      minHeight="size50"
+      tabIndex={0}
+      {...props}
+    >
+      <ChatLog ref={loggerRef}>
+        {_debug && (
+          <ChatBookend>
+            <ChatBookendItem>SID: {conversationSid}</ChatBookendItem>
+            <ChatBookendItem>Identity: {identity}</ChatBookendItem>
+          </ChatBookend>
+        )}
+        {messages.map((message) => {
+          return <ChatMessageWrapper message={message} key={message.sid} />;
+        })}
+        {isTyping ? <TypingIndicator /> : null}
+      </ChatLog>
+    </Box>
+  );
+}
+
+
+================================================
+File: packages/assistants-react/src/components/ChatMessageWrapper.tsx
+================================================
+import React from "react";
+import {
+  ChatBubble,
+  ChatMessage,
+  ChatMessageMeta,
+  ChatMessageMetaItem,
+  MessageVariants,
+} from "@twilio-paste/chat-log";
+import { Message } from "@twilio/conversations";
+import Markdown from "react-markdown";
+import { Box } from "@twilio-paste/box";
+import { Anchor } from "@twilio-paste/anchor";
+import { JsxRuntimeComponents } from "react-markdown/lib";
+
+export interface ChatMessageProps {
+  message: Message;
+}
+
+function markdownComponents(
+  variant: "inbound" | "outbound"
+): Partial<JsxRuntimeComponents> {
+  return {
+    a: ({ node, ...props }) => {
+      return (
+        // @ts-ignore
+        <Anchor
+          {...props}
+          variant={variant === "inbound" ? undefined : "inverse"}
+        />
+      );
+    },
+    blockquote: ({ node, ...props }) => {
+      return (
+        // @ts-ignore
+        <Box
+          as="blockquote"
+          {...props}
+          borderLeftStyle={"solid"}
+          borderLeftWidth={"borderWidth30"}
+          borderLeftColor={"colorBorderWeak"}
+          paddingX="space40"
+          backgroundColor={
+            variant === "inbound" ? "colorBackgroundStrong" : undefined
+          }
+        />
+      );
+    },
+  };
+}
+
+/**
+ * Renders both an incoming our outgoing message to be used in a Twilio Paste ChatLog
+ * Message bodies get treated as markdown using {@link https://www.npmjs.com/package/react-markdown | react-markdown}
+ * to enable formatting.
+ *
+ * @param {ChatMessageProps} props
+ */
+export function ChatMessageWrapper({ message }: ChatMessageProps) {
+  const variant: MessageVariants =
+    message.author === "system" ? "inbound" : "outbound";
+
+  const timeString = message.dateUpdated
+    ? new Intl.DateTimeFormat(undefined, { timeStyle: "short" }).format(
+        message.dateUpdated
+      )
+    : "";
+
+  return (
+    <ChatMessage variant={variant}>
+      <ChatBubble>
+        <Markdown components={markdownComponents(variant)}>
+          {message.body}
+        </Markdown>
+      </ChatBubble>
+      <ChatMessageMeta aria-label="TODO">
+        <ChatMessageMetaItem>{timeString}</ChatMessageMetaItem>
+      </ChatMessageMeta>
+    </ChatMessage>
+  );
+}
+
+
+================================================
+File: packages/assistants-react/src/components/TypingIndicator.tsx
+================================================
+import React from "react";
+import {
+  ChatMessage,
+  ChatMessageMeta,
+  ChatMessageMetaItem,
+} from "@twilio-paste/chat-log";
+import { SkeletonLoader } from "@twilio-paste/skeleton-loader";
+import { Stack } from "@twilio-paste/stack";
+
+/**
+ * Typing indicator to be used in conjunction with a Twilio Paste ChatLog component
+ */
+export function TypingIndicator() {
+  return (
+    <ChatMessage variant="inbound">
+      <Stack orientation={"vertical"} spacing="space20">
+        <SkeletonLoader width="100px" />
+        <SkeletonLoader width="150px" />
+        <SkeletonLoader width="80px" />
+        <ChatMessageMeta aria-label="TODO">
+          <ChatMessageMetaItem>
+            <i>Typing...</i>
+          </ChatMessageMetaItem>
+        </ChatMessageMeta>
+      </Stack>
+    </ChatMessage>
+  );
+}
+
+
+================================================
+File: packages/assistants-react/src/components/chat-composer-plugins/EnterKeySubmitPlugin.tsx
+================================================
+import React from "react";
+import {
+  CLEAR_EDITOR_COMMAND,
+  COMMAND_PRIORITY_HIGH,
+  KEY_ENTER_COMMAND,
+  useLexicalComposerContext,
+} from "@twilio-paste/lexical-library";
+
+/**
+ * Plugin for the Twilio Paste ChatComposer component to handle "hit enter to send"
+ * {@link https://paste.twilio.design/components/chat-composer#adding-interactivity-with-plugins | Twilio Paste Docs}
+ */
+export const EnterKeySubmitPlugin = ({
+  onKeyDown,
+}: {
+  onKeyDown: () => void;
+}): null => {
+  const [editor] = useLexicalComposerContext();
+
+  const handleEnterKey = React.useCallback(
+    (event: KeyboardEvent) => {
+      const { shiftKey, ctrlKey } = event;
+      if (shiftKey || ctrlKey) return false;
+      event.preventDefault();
+      event.stopPropagation();
+      onKeyDown();
+      editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+      return true;
+    },
+    [editor, onKeyDown]
+  );
+
+  React.useEffect(() => {
+    return editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      handleEnterKey,
+      COMMAND_PRIORITY_HIGH
+    );
+  }, [editor, handleEnterKey]);
+  return null;
+};
+
+
+================================================
+File: packages/assistants-react/src/components/chat-composer-plugins/SendButtonPlugin.tsx
+================================================
+import { SendIcon } from "@twilio-paste/icons/esm/SendIcon";
+import React from "react";
+import { Box } from "@twilio-paste/box";
+import {
+  CLEAR_EDITOR_COMMAND,
+  useLexicalComposerContext,
+} from "@twilio-paste/lexical-library";
+import { Button } from "@twilio-paste/button";
+
+/**
+ * Component rendering a send button for the Twilio Paste ChatComposer component
+ * {@link https://paste.twilio.design/components/chat-composer#adding-interactivity-with-plugins | Twilio Paste Docs}
+ */
+export const SendButtonPlugin = ({
+  onClick,
+}: {
+  onClick: () => void;
+}): JSX.Element => {
+  const [editor] = useLexicalComposerContext();
+
+  const handleSend = (): void => {
+    onClick();
+    editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+  };
+
+  return (
+    <Box position="absolute" top="space30" right="space30">
+      <Button variant="primary_icon" size="reset" onClick={handleSend}>
+        <SendIcon decorative={false} title="Send message" />
+      </Button>
+    </Box>
+  );
+};
+
+
+================================================
+File: packages/assistants-react/src/hooks/useAssistant.ts
+================================================
+import { ConnectionState, Message } from "@twilio/conversations";
+import { useEffect, useRef, useState } from "react";
+
+import Assistant, { AssistantOptions } from "@twilio-alpha/assistants";
+
+export type UseAssistantOptions = Partial<AssistantOptions> & {
+  /**
+   * The SID of your Twilio AI Assistant
+   */
+  assistantSid: string;
+
+  /**
+   * A conversation SID if you want to connect to an existing conversation
+   */
+  conversationSid?: string;
+
+  /**
+   * Handlers for any UI Tools you want the Twilio AI Assistant to be able to use.
+   * This requires for the UI Tools to be properly configured.
+   * - {@link https://www.twilio.com/docs/alpha/ai-assistants/code-samples/ui-tools | Learn more about UI tools}
+   */
+  toolHandlers?: {
+    [key: string]: (data: any) => void;
+  };
+};
+
+export type UseAssistantOutput = {
+  /**
+   * A list of all the messages in the conversation
+   */
+  messages: Message[];
+
+  /**
+   * Connection state to the conversation
+   */
+  state: ConnectionState;
+
+  /**
+   * Function to send a new message to the AI Assistant / Conversation
+   *
+   * @param message The new message to send
+   * @returns success
+   */
+  sendMessage: (message: string) => Promise<boolean>;
+
+  /**
+   *
+   */
+  conversationSid?: string;
+
+  /**
+   * Indicates when the AI Assistant is generating a new response.
+   * Only works in combination with the {@link https://www.twilio.com/docs/alpha/ai-assistants/code-samples/conversations | AI Assistants Conversations integration}
+   */
+  isTyping: boolean;
+
+  /**
+   * The Twilio Conversations identity of the user that's logged in
+   */
+  identity?: string;
+};
+
+export function useAssistant(
+  /**
+   * A valid JWT with a Twilio Conversations grant
+   * - {@link https://www.twilio.com/docs/iam/access-tokens#create-an-access-token-for-conversations | Learn more}
+   */
+  token: string,
+  options: UseAssistantOptions
+): UseAssistantOutput {
+  const assistantClient = useRef<Assistant>();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [state, setConnectionState] = useState<ConnectionState>("unknown");
+  const [conversationSid, setConversationSid] = useState<string>();
+  const [identity, setIdentity] = useState<string>();
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof token !== "string" || token.length === 0) {
+      return;
+    }
+
+    assistantClient.current = new Assistant(token, {});
+    assistantClient.current.on("messagesChanged", (messages) => {
+      setMessages(messages);
+    });
+    assistantClient.current.on("statusChanged", (state) => {
+      setConnectionState(state);
+    });
+    assistantClient.current.on(
+      "joinedConversation",
+      ({ conversationSid, identity }) => {
+        setConversationSid(conversationSid);
+        setIdentity(identity);
+      }
+    );
+    assistantClient.current.on("assistantTypingStarted", () => {
+      setIsTyping(true);
+    });
+    assistantClient.current.on("assistantTypingEnded", () => {
+      setIsTyping(false);
+    });
+    assistantClient.current.on("uiToolTriggered", (payload) => {
+      if (
+        options.toolHandlers &&
+        typeof options.toolHandlers[payload.name] === "function"
+      ) {
+        options.toolHandlers[payload.name](payload.data);
+      }
+    });
+
+    return () => {
+      assistantClient.current?.removeAllListeners();
+      assistantClient.current?.destroy();
+      assistantClient.current = undefined;
+    };
+  }, [token, options.conversationSid]);
+
+  useEffect(() => {
+    if (
+      state === "connected" &&
+      options.assistantSid &&
+      assistantClient.current &&
+      !assistantClient.current.conversation
+    ) {
+      assistantClient.current.start(
+        options.assistantSid,
+        options.conversationSid
+      );
+    }
+  }, [state, options.assistantSid]);
+
+  async function sendMessage(message: string) {
+    return assistantClient.current?.sendMessage(message) || false;
+  }
+
+  return { state, messages, sendMessage, conversationSid, isTyping, identity };
+}
+
+export default useAssistant;
+
+
+================================================
+File: packages/assistants-react/tests/index.test.ts
+================================================
+import { expect, expectTypeOf, test } from "vitest";
+import { FC } from "react";
+import { useAssistant, AssistantChat, AssistantChatProps } from "../src/index";
+
+// TODO: add more tests
+
+test("exports right items", () => {
+  expectTypeOf(useAssistant).toBeCallableWith("<token>", {
+    assistantSid: "<assistant-sid>",
+  });
+  expectTypeOf(AssistantChat).toMatchTypeOf<FC<AssistantChatProps>>();
+});
+
+

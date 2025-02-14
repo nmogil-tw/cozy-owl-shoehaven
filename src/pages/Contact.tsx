@@ -21,19 +21,33 @@ const Contact = () => {
       try {
         console.log('Fetching chat token...');
         const response = await twilioApi.chat.generateToken();
-        console.log('Full response from generateToken:', response);
         
+        // Log the entire response for debugging
+        console.log('Response structure:', {
+          success: response.success,
+          hasData: !!response.data,
+          hasToken: response.data?.token ? 'yes' : 'no',
+          token: response.data?.token
+        });
+        
+        // First check if the response was successful
         if (!response.success) {
           throw new Error(`API call failed: ${response.error}`);
         }
-        
-        if (!response.data?.token) {
-          console.error('Response data:', response.data);
-          throw new Error('Token missing from response');
+
+        // Then check if we have data
+        if (!response.data) {
+          throw new Error('Response missing data object');
         }
 
-        console.log('Token received:', response.data.token);
-        setToken(response.data.token);
+        // Finally check for the token
+        const { token: chatToken } = response.data;
+        if (!chatToken) {
+          throw new Error('Token missing from response data');
+        }
+
+        console.log('Valid token received');
+        setToken(chatToken);
       } catch (error) {
         console.error('Error initializing chat:', error);
         setError(error instanceof Error ? error.message : 'Unknown error occurred');
@@ -94,10 +108,6 @@ const Contact = () => {
                       assistantSid={TWILIO_ASSISTANT_SID}
                       conversationSid={conversationSid}
                       onConversationSetup={saveConversationSid}
-                      onError={(error) => {
-                        console.error('AssistantChat error:', error);
-                        setError(error instanceof Error ? error.message : String(error));
-                      }}
                     />
                   </div>
                 </div>
