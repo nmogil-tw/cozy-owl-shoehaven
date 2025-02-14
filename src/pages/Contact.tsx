@@ -7,16 +7,9 @@ const TWILIO_ASSISTANT_SID = import.meta.env.VITE_TWILIO_ASSISTANT_SID;
 
 const Contact = () => {
   const [token, setToken] = useState<string | null>(null);
-  const [conversationSid, setConversationSid] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load existing conversation SID from localStorage
-    const savedConversationSid = localStorage.getItem("CONVERSATIONS_SID");
-    if (savedConversationSid) {
-      setConversationSid(savedConversationSid);
-    }
-
     const fetchToken = async () => {
       try {
         console.log('Fetching chat token...');
@@ -56,12 +49,6 @@ const Contact = () => {
 
     fetchToken();
   }, []);
-
-  const saveConversationSid = (sid: string) => {
-    console.log('Saving conversation SID:', sid);
-    localStorage.setItem("CONVERSATIONS_SID", sid);
-    setConversationSid(sid);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -106,8 +93,6 @@ const Contact = () => {
                     <AssistantChat 
                       token={token}
                       assistantSid={TWILIO_ASSISTANT_SID}
-                      conversationSid={conversationSid}
-                      onConversationSetup={saveConversationSid}
                     />
                   </div>
                 </div>
