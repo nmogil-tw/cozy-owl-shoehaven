@@ -1,22 +1,14 @@
-# Welcome to your Lovable project
+# Welcome to Shoe Haven
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/969ce0be-1829-41d2-8b6a-deb17c84093a
+This is an e-commerce application for a shoe store.
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/969ce0be-1829-41d2-8b6a-deb17c84093a) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -52,7 +44,7 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript
