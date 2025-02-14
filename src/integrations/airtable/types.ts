@@ -10,10 +10,13 @@ export interface Product {
     size: number[];
     color?: string;
     current_discount?: string;
-  }
+    fields?: {
+      id: string;
+    };
+}
   
-  // Customer types
-  export interface Customer {
+// Customer types
+export interface Customer {
     id?: string;
     first_name: string;
     last_name: string;
@@ -23,17 +26,17 @@ export interface Product {
     city: string;
     state: string;
     zip_code: string;
-  }
+}
   
-  // Order types
-  export interface OrderItem {
+// Order types
+export interface OrderItem {
     product_id: string;
     quantity: number;
     price: number;
     size: number;
-  }
+}
   
-  export interface Order {
+export interface Order {
     id?: string;
     items: OrderItem[];
     total_amount: number;
@@ -42,22 +45,22 @@ export interface Product {
     email: string;
     phone: string;
     return_id?: string;
-  }
+}
   
-  // Return types
-  export interface Return {
+// Return types
+export interface Return {
     id?: string;
     order_id: string;
     customer_id: string;
     reason: string;
     status: string;
     refund_amount: number;
-  }
+}
   
-  // Survey types
-  export interface Survey {
+// Survey types
+export interface Survey {
     id?: string;
     customer_id?: string;
     feedback?: string;
     rating?: number;
-  }
+}

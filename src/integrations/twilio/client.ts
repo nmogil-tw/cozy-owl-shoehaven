@@ -1,7 +1,7 @@
 // src/integrations/twilio/client.ts
 
 // Configuration for Twilio Functions
-const TWILIO_FUNCTIONS_DOMAIN = import.meta.env.TWILIO_FUNCTIONS_DOMAIN || '';
+const TWILIO_FUNCTIONS_DOMAIN = import.meta.env.VITE_TWILIO_FUNCTION_URL || '';
 
 // Helper function to construct URLs
 const getFunctionUrl = (functionPath: string): string => {

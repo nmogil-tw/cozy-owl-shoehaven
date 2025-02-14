@@ -1,16 +1,16 @@
 // src/integrations/airtable/client.ts
 import Airtable from 'airtable';
 
-if (!import.meta.env.AIRTABLE_API_KEY) {
-  throw new Error('Missing Airtable API key. Please check your environment variables.');
+if (!import.meta.env.VITE_AIRTABLE_API_KEY) {
+  throw new Error('Missing Airtable API key');
 }
 
-if (!import.meta.env.AIRTABLE_BASE_ID) {
-  throw new Error('Missing Airtable Base ID. Please check your environment variables.');
+if (!import.meta.env.VITE_AIRTABLE_BASE_ID) {
+  throw new Error('Missing Airtable base ID');
 }
 
-const base = new Airtable({ apiKey: import.meta.env.AIRTABLE_API_KEY })
-  .base(import.meta.env.AIRTABLE_BASE_ID);
+const base = new Airtable({ apiKey: import.meta.env.VITE_AIRTABLE_API_KEY })
+  .base(import.meta.env.VITE_AIRTABLE_BASE_ID);
 
 // Functions to interact with Airtable
 export const airtable = {
@@ -19,7 +19,7 @@ export const airtable = {
     try {
       const records = await base(tableName).select().all();
       return records.map(record => ({
-        id: record.id,
+        id: record.fields.id,
         ...record.fields
       }));
     } catch (error) {
@@ -31,9 +31,19 @@ export const airtable = {
   // Get a single record by ID
   async getById(tableName: string, id: string) {
     try {
-      const record = await base(tableName).find(id);
+      const records = await base(tableName)
+        .select({
+          filterByFormula: `{id} = "${id}"`
+        })
+        .all();
+      
+      if (records.length === 0) {
+        throw new Error('Record not found');
+      }
+
+      const record = records[0];
       return {
-        id: record.id,
+        id: record.fields.id,
         ...record.fields
       };
     } catch (error) {

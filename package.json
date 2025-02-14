@@ -45,6 +45,7 @@
     "@twilio-alpha/assistants-react": "^0.0.1",
     "@types/airtable": "^0.10.0",
     "airtable": "^0.12.2",
+    "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

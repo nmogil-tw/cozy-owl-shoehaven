@@ -1,25 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { airtable } from "@/integrations/airtable/client";
+import type { Product } from "@/integrations/airtable/types";
 
 const Index = () => {
   const navigate = useNavigate();
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-      
-      if (error) {
+      try {
+        const products = await airtable.getAll("Products") as Product[];
+        return products.map(product => ({
+          ...product,
+          // Ensure we have consistent data structure
+          size: Array.isArray(product.size) ? product.size : JSON.parse(product.size as string),
+          price: typeof product.price === 'number' ? product.price : parseFloat(product.price as string),
+          // Use the ID field from Airtable instead of the record ID
+          id: product.id || product.fields?.id // Fallback to fields.id if needed
+        }));
+      } catch (error) {
         console.error("Error fetching products:", error);
         throw error;
       }
-      
-      return data;
     },
   });
 

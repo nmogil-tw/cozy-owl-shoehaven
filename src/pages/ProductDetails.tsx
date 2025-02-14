@@ -1,10 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Navigation } from "@/components/Navigation";
+import { airtable } from "@/integrations/airtable/client";
+import type { Product } from "@/integrations/airtable/types";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -14,18 +15,18 @@ const ProductDetails = () => {
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) {
+      try {
+        const product = await airtable.getById("Products", id as string) as Product;
+        return {
+          ...product,
+          // Ensure consistent data structure
+          size: Array.isArray(product.size) ? product.size : JSON.parse(product.size as string),
+          price: typeof product.price === 'number' ? product.price : parseFloat(product.price as string)
+        };
+      } catch (error) {
         console.error("Error fetching product:", error);
         throw error;
       }
-
-      return data;
     },
   });
 

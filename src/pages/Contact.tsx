@@ -1,29 +1,32 @@
 import { Navigation } from "@/components/Navigation";
 import { AssistantChat } from "@twilio-alpha/assistants-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { twilioApi } from "@/integrations/twilio";
 
-// Move the assistant SID to a constant since it's public and safe to expose
-const TWILIO_ASSISTANT_SID = "aia_asst_01944282-f2a6-7a76-8235-b9ea699a90b1";
+// Get Assistant SID from environment variables
+const TWILIO_ASSISTANT_SID = import.meta.env.VITE_TWILIO_ASSISTANT_SID;
 
 const Contact = () => {
   const [token, setToken] = useState<string | null>(null);
+  const [conversationSid, setConversationSid] = useState<string | undefined>();
 
   useEffect(() => {
+    // Load existing conversation SID from localStorage
+    setConversationSid(localStorage.getItem("CONVERSATIONS_SID") || undefined);
+
     const fetchToken = async () => {
       try {
-        console.log('Fetching token from Edge Function');
-        const { data, error } = await supabase.functions.invoke('generate-twilio-token');
+        console.log('Fetching chat token...');
+        console.log('Assistant SID:', TWILIO_ASSISTANT_SID);
+        const response = await twilioApi.chat.generateToken();
         
-        if (error) {
-          console.error('Error fetching token:', error);
+        if (!response.success || !response.data?.token) {
+          console.error('Failed to generate token:', response.error || 'No token in response');
           return;
         }
 
-        if (data?.token) {
-          console.log('Token received successfully');
-          setToken(data.token);
-        }
+        console.log('Token received successfully');
+        setToken(response.data.token);
       } catch (error) {
         console.error('Error initializing chat:', error);
       }
@@ -31,6 +34,13 @@ const Contact = () => {
 
     fetchToken();
   }, []);
+
+  const saveConversationSid = (sid: string) => {
+    localStorage.setItem("CONVERSATIONS_SID", sid);
+  };
+
+  // Log when the component attempts to render AssistantChat
+  console.log('Rendering Contact component, token status:', token ? 'present' : 'not present');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,13 +74,24 @@ const Contact = () => {
                 <p className="text-gray-600">123 Owl Street<br />San Francisco, CA 94105</p>
               </div>
 
-              {token && (
+              {token && TWILIO_ASSISTANT_SID ? (
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Live Chat</h2>
-                  <AssistantChat 
-                    token={token} 
-                    assistantSid={TWILIO_ASSISTANT_SID} 
-                  />
+                  <div style={{ minHeight: '400px' }}>
+                    <AssistantChat 
+                      token={token}
+                      assistantSid={TWILIO_ASSISTANT_SID}
+                      conversationSid={conversationSid}
+                      onConversationSetup={saveConversationSid}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-gray-600">
+                    {!token && 'Loading chat...'}
+                    {!TWILIO_ASSISTANT_SID && 'Assistant configuration missing.'}
+                  </p>
                 </div>
               )}
             </div>
