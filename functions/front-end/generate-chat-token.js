@@ -20,6 +20,7 @@ exports.handler = async function(context, event, callback) {
       const apiKey = context.TWILIO_API_KEY;
       const apiSecret = context.TWILIO_API_SECRET;
       const serviceSid = context.TWILIO_CHAT_SERVICE_SID;
+      const demoIdentityEmail = context.DEMO_IDENTITY_EMAIL;
 
       // Validate required environment variables
       if (!accountSid || !apiKey || !apiSecret || !serviceSid) {
@@ -27,8 +28,8 @@ exports.handler = async function(context, event, callback) {
       }
 
       // Generate a random identity if none is provided
-      const identity = `customer_${Math.random().toString(36).substring(7)}`;
-      
+      // const identity = `customer_${Math.random().toString(36).substring(7)}`;
+      const identity = demoIdentityEmail;
       // Create a Chat Grant for this token
       const chatGrant = new ChatGrant({
           serviceSid: serviceSid,
